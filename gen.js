@@ -1,55 +1,59 @@
-const openWhenDone = true;
 const fs = require("fs");
+const path = require("path");
 const { exec } = require("child_process");
 const prompt = require("prompt-sync")();
-const text = prompt('Enter: ');
-const lines = ["DELAY 1000"];
+
 const KEY_MAP = {
-  " ":  "SPACE",
-  "\n": "ENTER",
-  "\t": "TAB",
-  "\b": "BACKSPACE",
+  " ":    "SPACE",
+  "\n":   "ENTER",
+  "\t":   "TAB",
+  "\b":   "BACKSPACE",
   "\x1b": "ESC",
   "\x7f": "DELETE",
   "\x01": "HOME",
   "\x05": "END",
-  "\x0c": "PAGEUP",
-  "\x0e": "PAGEDOWN",
-  "\x10": "UP",
-  "\x02": "LEFT",
-  "\x06": "RIGHT",
+  "\x0c": "PAGE_UP",
+  "\x0e": "PAGE_DOWN",
+  "\x10": "UP_ARROW",
+  "\x02": "LEFT_ARROW",
+  "\x06": "RIGHT_ARROW",
 };
 
+const text = prompt("Enter text: ");
+
+if (!text || text.length === 0) {
+  console.error("Error: No input provided.");
+  process.exit(1);
+}
+
+const lines = ["DELAY 1000"];
+let skipped = 0;
+
 for (const char of text) {
-  const delay = Math.floor(Math.random() * 110) + 100;
-  const pause = Math.floor(Math.random() * 1500);
-  
   if (KEY_MAP[char]) {
     lines.push(KEY_MAP[char]);
   } else if (char.charCodeAt(0) >= 32 && char.charCodeAt(0) <= 126) {
     lines.push(`STRING ${char}`);
-  }
-  
-  if (Math.random() < 0.01) {
-    lines.push(`DELAY ${pause}`);
   } else {
-    lines.push(`DELAY ${delay}`);
+    skipped++;
+    continue;
   }
+
+  const delay = Math.random() < 0.01
+    ? Math.floor(Math.random() * 1500)
+    : Math.floor(Math.random() * 110) + 100;
+  lines.push(`DELAY ${delay}`);
+}
+
+if (skipped > 0) {
+  console.warn(`Warning: ${skipped} character(s) were skipped (non-ASCII or unsupported).`);
 }
 
 try {
-  const filePath = require("path").resolve("payload.dd");
+  const filePath = path.resolve("payload.dd");
   fs.writeFileSync(filePath, lines.join("\n"));
-  console.log(`Generated ${lines.length} lines for ${text.length} characters.`);
-  if (openWhenDone) {
-    console.log(`Opened ${filePath}`);
-    const opener = process.platform === "win32" ? "start"
-                 : process.platform === "darwin" ? "open"
-                 : "xdg-open";
-    exec(`${opener} "${filePath}"`);
-  } else {
-    console.log(`File can be found at ${filePath}`);
-  }
+  console.log(`Generated ${lines.length} lines for ${text.length} characters → ${filePath}`);
 } catch (err) {
-  console.error('Failed. Ensure requirements are met.', err);
+  console.error("Failed to write output file:", err.message);
+  process.exit(1);
 }
