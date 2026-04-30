@@ -21,7 +21,7 @@ const KEY_MAP = {
 };
 
 for (const char of text) {
-  const delay = Math.floor(Math.random() * 110) + 90;
+  const delay = Math.floor(Math.random() * 110) + 100;
   const pause = Math.floor(Math.random() * 1500);
   
   if (KEY_MAP[char]) {
