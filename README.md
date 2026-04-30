@@ -1,11 +1,8 @@
 # gen.js
 Node script which will parse text into duckyscript, to simulate typing.
 
-# Setup
-Prerequisites: Node.js installed (nodejs.org)
+## Setup
+1. `npm install`
+2. `node gen.js`
 
-1. Install prompt-sync:
-`npm install prompt-sync`
-2. Run the script:
-`node gen.js`
-3. Paste text, then click Enter
+Paste the text, then click `Enter`
