@@ -8,4 +8,4 @@ Prerequisites: Node.js installed (nodejs.org)
 bashnpm install prompt-sync
 2. Run the script:
 `node gen.js`
-3. Paste text, then click `Enter`
+3. Paste text, then click Enter
