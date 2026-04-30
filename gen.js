@@ -1,3 +1,4 @@
+const openWhenDone = true;
 const fs = require("fs");
 const path = require("path");
 const { exec } = require("child_process");
@@ -19,7 +20,7 @@ const KEY_MAP = {
   "\x06": "RIGHT_ARROW",
 };
 
-const text = prompt("Enter text: ");
+const text = prompt('Enter: ');
 
 if (!text || text.length === 0) {
   console.error("Error: No input provided.");
@@ -53,6 +54,12 @@ try {
   const filePath = path.resolve("payload.dd");
   fs.writeFileSync(filePath, lines.join("\n"));
   console.log(`Generated ${lines.length} lines for ${text.length} characters → ${filePath}`);
+  if (openWhenDone) {
+    const opener = process.platform === "win32" ? "start"
+                 : process.platform === "darwin" ? "open"
+                 : "xdg-open";
+    exec(`${opener} "${filePath}"`);
+  }
 } catch (err) {
   console.error("Failed to write output file:", err.message);
   process.exit(1);
