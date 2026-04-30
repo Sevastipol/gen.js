@@ -7,5 +7,5 @@ Prerequisites: Node.js installed (nodejs.org)
 1. Install the only dependency:
 bashnpm install prompt-sync
 2. Run the script:
-bashnode script.js
+`node gen.js`
 3. Enter text
