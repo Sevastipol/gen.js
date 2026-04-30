@@ -4,8 +4,6 @@ const { exec } = require("child_process");
 const prompt = require("prompt-sync")();
 const text = prompt('Enter: ');
 const lines = ["DELAY 1000"];
-
-// FIXED: Removed the "KEY " prefix from values
 const KEY_MAP = {
   " ":  "SPACE",
   "\n": "ENTER",
