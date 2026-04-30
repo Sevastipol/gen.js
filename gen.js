@@ -2,8 +2,8 @@ const openWhenDone = true;
 const fs = require("fs");
 const path = require("path");
 const { exec } = require("child_process");
-const prompt = require("prompt-sync")();
-
+const readline = require("readline");
+ 
 const KEY_MAP = {
   " ":    "SPACE",
   "\n":   "ENTER",
@@ -19,48 +19,55 @@ const KEY_MAP = {
   "\x02": "LEFT_ARROW",
   "\x06": "RIGHT_ARROW",
 };
-
-const text = prompt('Enter: ');
-
-if (!text || text.length === 0) {
-  console.error("Error: No input provided.");
-  process.exit(1);
-}
-
-const lines = ["DELAY 1000"];
-let skipped = 0;
-
-for (const char of text) {
-  if (KEY_MAP[char]) {
-    lines.push(KEY_MAP[char]);
-  } else if (char.charCodeAt(0) >= 32 && char.charCodeAt(0) <= 126) {
-    lines.push(`STRING ${char}`);
-  } else {
-    skipped++;
-    continue;
+ 
+const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+ 
+rl.question('Enter: ', (text) => {
+  rl.close();
+ 
+  if (!text || text.length === 0) {
+    console.error("Error: No input provided.");
+    process.exit(1);
   }
-
-  const delay = Math.random() < 0.01
-    ? Math.floor(Math.random() * 1500)
-    : Math.floor(Math.random() * 110) + 100;
-  lines.push(`DELAY ${delay}`);
-}
-
-if (skipped > 0) {
-  console.warn(`Warning: ${skipped} character(s) were skipped (non-ASCII or unsupported).`);
-}
-
-try {
-  const filePath = path.resolve("payload.dd");
-  fs.writeFileSync(filePath, lines.join("\n"));
-  console.log(`Generated ${lines.length} lines for ${text.length} characters → ${filePath}`);
-  if (openWhenDone) {
-    const opener = process.platform === "win32" ? "start"
-                 : process.platform === "darwin" ? "open"
-                 : "xdg-open";
-    exec(`${opener} "${filePath}"`);
+ 
+  const lines = ["DELAY 1000"];
+  let skipped = 0;
+ 
+  for (const char of text) {
+    if (KEY_MAP[char]) {
+      lines.push(KEY_MAP[char]);
+    } else if (char.charCodeAt(0) >= 32 && char.charCodeAt(0) <= 126) {
+      lines.push(`STRING ${char}`);
+    } else {
+      skipped++;
+      continue;
+    }
+ 
+    const delay = Math.random() < 0.01
+      ? Math.floor(Math.random() * 1500)
+      : Math.floor(Math.random() * 110) + 100;
+    lines.push(`DELAY ${delay}`);
   }
-} catch (err) {
-  console.error("Failed to write output file:", err.message);
-  process.exit(1);
-}
+ 
+  if (skipped > 0) {
+    console.warn(`Warning: ${skipped} character(s) were skipped (non-ASCII or unsupported).`);
+  }
+ 
+  try {
+    const filePath = path.resolve("payload.dd");
+    fs.writeFileSync(filePath, lines.join("\n"));
+    console.log(`Generated ${lines.length} lines for ${text.length} characters.`);
+    if (openWhenDone) {
+      console.log(`Opened ${filePath}`);
+      const opener = process.platform === "win32" ? "start"
+                   : process.platform === "darwin" ? "open"
+                   : "xdg-open";
+      exec(`${opener} "${filePath}"`);
+    } else {
+      console.log(`File can be found at ${filePath}`);
+    }
+  } catch (err) {
+    console.error("Failed to write output file:", err.message);
+    process.exit(1);
+  }
+});
